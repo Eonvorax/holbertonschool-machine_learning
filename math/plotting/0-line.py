@@ -9,6 +9,6 @@ def line():
     plt.figure(figsize=(6.4, 4.8))
 
     # your code here
-    plt.plot(np.arange(0, 11), y, color='red', linestyle='-')
+    plt.plot(y, color='red', linestyle='-')
     plt.xlim(0, 10)
     plt.show()
