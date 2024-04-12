@@ -1,9 +1,16 @@
 #!/usr/bin/env python3
+
+"""
+This is the 6-bars module.
+"""
 import numpy as np
 import matplotlib.pyplot as plt
 
 
 def bars():
+    """
+    A bars graph that represents the number of fruits each person possesses.
+    """
     np.random.seed(5)
     fruit = np.random.randint(0, 20, (4, 3))
     plt.figure(figsize=(6.4, 4.8))

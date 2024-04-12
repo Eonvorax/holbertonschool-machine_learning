@@ -1,10 +1,16 @@
 #!/usr/bin/env python3
+
+"""
+This is the 4-frequency module.
+"""
 import numpy as np
 import matplotlib.pyplot as plt
 
 
 def frequency():
-
+    """
+    A histogram of student scores, with bins every 10 units on the x-axis.
+    """
     np.random.seed(5)
     student_grades = np.random.normal(68, 15, 50)
     plt.figure(figsize=(6.4, 4.8))
