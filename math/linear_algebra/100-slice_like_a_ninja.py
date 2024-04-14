@@ -26,9 +26,9 @@ def np_slice(matrix, axes={}):
         # Base slice tuple : all elements along the current axis
         base_slice = (slice(None),) * axis
         # New slice tuple using the specific slice from the axes dictionary
-        specific_slice = slice(*slice_tuple)
+        specific_slice = (slice(*slice_tuple),)
         # Combine base slice tuple with the specific slice tuple
-        axis_slice = base_slice + (specific_slice,)
+        axis_slice = base_slice + specific_slice
         # And finally, slice using the tuple
         sliced_matrix = sliced_matrix[axis_slice]
 
