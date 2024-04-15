@@ -10,6 +10,7 @@ def poly_derivative(poly):
     Calculates the derivative of a polynomial coefficient list.
     """
     if not isinstance(poly, list) \
+            or len(poly) == 0 \
             or not all(isinstance(coeff, (int, float)) for coeff in poly):
         return None
 
