@@ -17,6 +17,10 @@ def poly_integral(poly, C=0):
     if not isinstance(C, (int, float)):
         return None
 
+    # Special case: just a constant
+    if len(poly) == 1:
+        return [C]
+
     integral = [coeff / (i + 1) for i, coeff in enumerate(poly)]
     integral = [int(coeff) if coeff.is_integer() else coeff
                 for coeff in integral]
