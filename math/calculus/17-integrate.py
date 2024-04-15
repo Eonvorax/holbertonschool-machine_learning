@@ -18,6 +18,8 @@ def poly_integral(poly, C=0):
         return None
 
     integral = [coeff / (i + 1) for i, coeff in enumerate(poly)]
+    integral = [int(coeff) if coeff.is_integer() else coeff
+                for coeff in integral]
     integral.insert(0, C)
 
     return integral
