@@ -18,7 +18,7 @@ def poly_integral(poly, C=0):
         return None
 
     # Special case: just a constant
-    if len(poly) == 1:
+    if poly == [0]:
         return [C]
 
     integral = [coeff / (i + 1) for i, coeff in enumerate(poly)]
