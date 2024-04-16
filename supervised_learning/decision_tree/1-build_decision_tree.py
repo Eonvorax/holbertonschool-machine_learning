@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 """
-This is the 0-build_decision_tree module.
+This is the 1-build_decision_tree module.
 """
 
 import numpy as np
