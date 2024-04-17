@@ -102,7 +102,8 @@ class Node:
         """
         Returns the list of all leaves below this one.
         """
-        return self.left_child.get_leaves_below() + self.right_child.get_leaves_below()
+        return self.left_child.get_leaves_below()\
+            + self.right_child.get_leaves_below()
 
 
 class Leaf(Node):
@@ -138,7 +139,7 @@ class Leaf(Node):
         return 1
 
     def __str__(self):
-        return (f"-> leaf [value={self.value}]")
+        return (f"-> leaf [value={self.value}] ")
 
     def get_leaves_below(self):
         """
