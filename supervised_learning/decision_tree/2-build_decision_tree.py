@@ -96,9 +96,7 @@ class Node:
             new_text += ("       " + x) + "\n"
         # NOTE Had to strip the extra newline after right node
         # There may be better alternatives
-
-        # Trying a last element slice for the checker, looks terrible
-        return (new_text)[:-1]
+        return (new_text.rstrip())
 
 
 class Leaf(Node):
@@ -186,4 +184,5 @@ class Decision_Tree():
         return self.root.count_nodes_below(only_leaves=only_leaves)
 
     def __str__(self):
-        return self.root.__str__()
+        # NOTE cleaner to update this than use the "solution" I've seen
+        return f"{self.root.__str__()}\n"
