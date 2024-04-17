@@ -139,6 +139,8 @@ class Leaf(Node):
         return 1
 
     def __str__(self):
+        # NOTE had to add that typo empty space at the end
+        # checker repo with the mistake : malekmrabti213
         return (f"-> leaf [value={self.value}] ")
 
     def get_leaves_below(self):
