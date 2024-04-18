@@ -140,24 +140,19 @@ class Node:
         """
         Update the indicator function based on the lower and upper bounds.
 
-        The indicator function is a lambda function that takes in a 2D numpy array
-        `x` representing the features of the individuals and returns a 1D numpy array
-        of size `n_individuals` where the `i`-th element is `True` if the `i`-th
-        individual satisfies the conditions specified by the lower and upper bounds.
+        The indicator function is a lambda function that takes in a 2D numpy
+        array `x` representing the features of the individuals and returns a
+        1D numpy array of size `n_individuals` where the `i`-th element is
+        `True` if the `i`-th individual satisfies the conditions specified
+        by the lower and upper bounds.
         """
         def is_large_enough(x):
-            # <- fill the gap : this function returns a 1D numpy array of size
-            # `n_individuals` so that the `i`-th element of the later is `True`
-            # if the `i`-th individual has all its features > the lower bounds
             return np.all(
                 np.array([np.greater(x[:, key], self.lower[key])
                           for key in self.lower]), axis=0
             )
 
         def is_small_enough(x):
-            # <- fill the gap : this function returns a 1D numpy array of size
-            # `n_individuals` so that the `i`-th element of the later is `True`
-            # if the `i`-th individual has all its features <= the lower bounds
             return np.all(
                 np.array([np.less_equal(x[:, key], self.upper[key])
                           for key in self.upper]), axis=0
