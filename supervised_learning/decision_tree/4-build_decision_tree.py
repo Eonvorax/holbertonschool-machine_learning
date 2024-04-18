@@ -102,8 +102,6 @@ class Node:
         """
         Returns the list of all leaves below this one.
         """
-        Node.lower = {}
-        Node.upper = {}
 
         return self.left_child.get_leaves_below()\
             + self.right_child.get_leaves_below()
@@ -117,23 +115,26 @@ class Node:
             self.lower = {0: -1 * np.inf}
             self.upper = {0: np.inf}
 
-        if self.left_child is not None:
-            self.left_child.lower = self.lower.copy()
-            self.left_child.upper = self.upper.copy()
-            if self.feature != 0:
-                self.left_child.upper[self.feature] = self.threshold
-            else:
-                self.left_child.lower[self.feature] = self.threshold
-            self.left_child.update_bounds_below()
+        for child in [self.left_child, self.right_child]:
+            child.upper = self.upper.copy()
+            child.lower = self.lower.copy()
 
-        if self.right_child is not None:
-            self.right_child.lower = self.lower.copy()
-            self.right_child.upper = self.upper.copy()
-            if self.feature != 0:
-                self.right_child.lower[self.feature] = self.threshold
-            else:
-                self.right_child.upper[self.feature] = self.threshold
-            self.right_child.update_bounds_below()
+        if self.feature in self.left_child.lower.keys():
+            # Updating with lower left threshold
+            self.left_child.lower[self.feature] = \
+                max(self.threshold, self.left_child.lower[self.feature])
+        else:
+            self.left_child.lower[self.feature] = self.threshold
+
+        if self.feature in self.right_child.upper.keys():
+            # Updating with upper right threshold
+            self.right_child.upper[self.feature] = \
+                min(self.threshold, self.right_child.upper[self.feature])
+        else:
+            self.right_child.upper[self.feature] = self.threshold
+
+        self.left_child.update_bounds_below()
+        self.right_child.update_bounds_below()
 
 
 class Leaf(Node):
