@@ -73,5 +73,5 @@ for d, name in zip([split(*circle_of_clouds(10, 30)), split(*iris()), split(*win
     T.fit(d["train_explanatory"], d["train_target"], verbose=1)
     T.update_predict()
     print(
-        f"- Accuracy on test          : {T.accuracy(d['test_explanatory'],d['test_target'])}")
+        f"    - Accuracy on test          : {T.accuracy(d['test_explanatory'],d['test_target'])}")
 print("-"*52)
