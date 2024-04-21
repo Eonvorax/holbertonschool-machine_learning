@@ -10,6 +10,9 @@ Leaf = __import__('8-build_decision_tree').Leaf
 
 
 class Isolation_Random_Tree():
+    """
+    A class representing an Isolation tree.
+    """
     def __init__(self, max_depth=10, seed=0, root=None):
         self.rng = np.random.default_rng(seed)
         if root:
@@ -22,6 +25,9 @@ class Isolation_Random_Tree():
         self.min_pop = 1
 
     def __str__(self):
+        """
+        String representation for the tree object.
+        """
         # NOTE Might need to remove the newline for Isolation_Tree
         return f"{self.root.__str__()}\n"
 
@@ -71,6 +77,9 @@ class Isolation_Random_Tree():
         self.predict = lambda A: np.array([self.root.pred(x) for x in A])
 
     def np_extrema(self, arr):
+        """
+        Returns extrema of array.
+        """
         return np.min(arr), np.max(arr)
 
     def random_split_criterion(self, node):
@@ -96,6 +105,7 @@ class Isolation_Random_Tree():
 
     def get_leaf_child(self, node, sub_population):
         """
+        Returns a leaf child node with the given depth and subpopulation.
         """
         leaf_child = Leaf(node.depth + 1)
         leaf_child.depth = node.depth + 1
@@ -120,6 +130,10 @@ class Isolation_Random_Tree():
         return n
 
     def fit_node(self, node):
+        """
+        Fits a tree node by recursively splitting the data based on
+        the best split criterion.
+        """
         node.feature, node.threshold = self.random_split_criterion(node)
 
         max_criterion = np.greater(
@@ -157,7 +171,10 @@ class Isolation_Random_Tree():
             self.fit_node(node.right_child)
 
     def fit(self, explanatory, verbose=0):
-
+        """
+        Initializes some attributes of the tree and then calls a new method
+        Isolation_Random_Tree.fit_node on the root
+        """
         self.split_criterion = self.random_split_criterion
         self.explanatory = explanatory
         self.root.sub_population = np.ones_like(
