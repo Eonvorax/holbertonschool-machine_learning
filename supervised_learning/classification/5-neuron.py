@@ -142,7 +142,7 @@ class Neuron():
         m = X.shape[1]
 
         dZ = A - Y
-        # Computing gradients of W and b for Z
+        # Computing gradients of W and b over Z
         dW = (1/m) * np.matmul(dZ, X.T)  # X.T == np.transpose(X)
         db = (1/m) * np.sum(dZ)
 
