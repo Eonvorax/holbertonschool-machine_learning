@@ -151,7 +151,7 @@ class NeuralNetwork:
 
         Updates the private attributes __W1, __b1, __W2, and __b2
         """
-        # NOTE is Y better for this ?
+        # NOTE is Y better here ?
         m = Y.shape[1]
 
         dZ2 = A2 - Y
