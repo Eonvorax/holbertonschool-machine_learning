@@ -4,7 +4,6 @@
 This is the DeepNeuralNetwork class module.
 """
 import numpy as np
-import matplotlib.pyplot as plt
 
 
 class DeepNeuralNetwork:
