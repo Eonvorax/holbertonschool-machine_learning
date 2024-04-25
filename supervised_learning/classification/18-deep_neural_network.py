@@ -74,7 +74,7 @@ class DeepNeuralNetwork:
         """
         Calculates the forward propagation of the neural network.
         """
-        # Setting up the first input for 1st layer : X
+        # Setting up the first input of first layer : X
         self.__cache["A0"] = X
 
         for i in range(1, self.__L + 1):
