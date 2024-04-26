@@ -216,7 +216,7 @@ class DeepNeuralNetwork:
             plt.ylabel('cost')
             plt.title('Training Cost')
             plt.show()
-            plt.savefig("iteration_over_cost.png")
+            # plt.savefig("iteration_over_cost.png")
         # Returning new evaluation of the NN's prediction after training
         return self.evaluate(X, Y)
 
@@ -226,11 +226,10 @@ class DeepNeuralNetwork:
         filename is the file to which the object will be saved.
         If filename does not have the extension .pkl, adds it.
         """
-        extension = ""
         if not filename.endswith(".pkl"):
-            extension = ".pkl"
+            filename += ".pkl"
 
-        with open(f"{filename}{extension}", "wb") as file:
+        with open(filename, "wb") as file:
             pickle.dump(self, file)
 
     @staticmethod
@@ -244,6 +243,10 @@ class DeepNeuralNetwork:
         if not exists(filename):
             return None
 
-        with open(filename, "rb") as file:
-            saved = pickle.load(file)
-            return saved
+        try:
+            with open(filename, "rb") as file:
+                unpickled_obj = pickle.load(file)
+            return unpickled_obj
+
+        except FileNotFoundError:
+            return None
