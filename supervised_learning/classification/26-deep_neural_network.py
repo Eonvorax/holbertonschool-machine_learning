@@ -3,10 +3,9 @@
 """
 This is the DeepNeuralNetwork class module.
 """
+import pickle
 import numpy as np
 import matplotlib.pyplot as plt
-import pickle
-from os.path import exists
 
 
 class DeepNeuralNetwork:
@@ -159,65 +158,71 @@ class DeepNeuralNetwork:
             self.__weights[f"W{i}"] -= alpha * dW
             self.__weights[f"b{i}"] -= alpha * db
 
-    def train(self, X, Y, iterations=5000, alpha=0.05, verbose=True,
-              graph=True, step=100):
+    def train(self, X, Y, iterations=5000, alpha=0.05,
+              verbose=True, graph=True, step=100):
         """
-        Trains the deep neural network.
+            Method to train deep neural network
 
-        X (ndarray): Matrix with shape (nx, m) that contains the input data
-        Y (ndarray): Matrix with shape (1, m) that contains the correct
-            labels for the input data.
-        iterations (int): The number of iterations to train over.
-        alpha (float): The learning rate.
-        verbose (bool): Defines whether or not to print information about the
-            training.
-        graph (bool): Defines whether or not to graph information about the
-            training once the training has completed
-        step (int): Defines the number of steps between each information
-            printing. Defaults to 100.
+            :param X: ndarray, shape(nx,m), input data
+            :param Y: ndarray, shapte(1,m), correct labels
+            :param iterations: number of iterations to train over
+            :param alpha: learning rate
+            :param verbose: boolean print or not information
+            :param graph: boolean print or not graph
+            :param step: int
 
-        Returns:
-            The evaluation of the training data after iterations.
+            :return: evaluation of training after iterations
         """
+
         if not isinstance(iterations, int):
             raise TypeError("iterations must be an integer")
-        if iterations < 1:
+        if iterations <= 0:
             raise ValueError("iterations must be a positive integer")
-
         if not isinstance(alpha, float):
             raise TypeError("alpha must be a float")
         if alpha <= 0:
             raise ValueError("alpha must be positive")
-
-        if verbose:
+        if not isinstance(verbose, bool):
+            raise TypeError("verbose must be a boolean")
+        if not isinstance(graph, bool):
+            raise TypeError("graph must be a boolean")
+        if verbose is True or graph is True:
             if not isinstance(step, int):
                 raise TypeError("step must be an integer")
-            if step < 1 or step > iterations:
+            if step <= 0 or step > iterations:
                 raise ValueError("step must be positive and <= iterations")
 
-        cost_values = []
+        # list to store cost /iter
+        costs = []
+        count = []
 
         for i in range(iterations + 1):
+            # run forward propagation
             A, cache = self.forward_prop(X)
 
-            if i % step == 0 or i == iterations:
-                cost = self.cost(Y, A)
-                cost_values.append(cost)
+            # run gradient descent for all iterations except the last one
+            if i != iterations:
+                self.gradient_descent(Y, self.cache, alpha)
 
-                if verbose:
-                    print(f"Cost after {i} iterations: {cost}")
+            cost = self.cost(Y, A)
 
-            # Gradient descent on DNN activated output
-            self.gradient_descent(Y, cache, alpha)
+            # store cost for graph
+            costs.append(cost)
+            count.append(i)
 
+            # verbose TRUE, every step + first and last iteration
+            if verbose and (i % step == 0 or i == 0 or i == iterations):
+                # run evaluate
+                print("Cost after {} iterations: {}".format(i, cost))
+
+        # graph TRUE after training complete
         if graph:
-            plt.plot(range(0, iterations + 1, step), cost_values, 'b-')
+            plt.plot(count, costs, 'b-')
             plt.xlabel('iteration')
             plt.ylabel('cost')
             plt.title('Training Cost')
             plt.show()
-            # plt.savefig("iteration_over_cost.png")
-        # Returning new evaluation of the NN's prediction after training
+
         return self.evaluate(X, Y)
 
     def save(self, filename):
@@ -239,9 +244,6 @@ class DeepNeuralNetwork:
         filename is the file from which the object should be loaded.
         Returns: the loaded object, or None if filename doesn't exist.
         """
-
-        if not exists(filename):
-            return None
 
         try:
             with open(filename, "rb") as file:
