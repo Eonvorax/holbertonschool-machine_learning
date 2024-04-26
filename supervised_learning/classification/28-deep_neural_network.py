@@ -45,7 +45,6 @@ class DeepNeuralNetwork:
         if activation not in ('sig', 'tanh'):
             raise ValueError("activation must be 'sig' or 'tanh'")
 
-
         self.__L = len(layers)
         self.__cache = {}
         self.__weights = {}
