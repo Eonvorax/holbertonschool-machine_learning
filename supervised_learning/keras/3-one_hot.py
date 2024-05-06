@@ -15,4 +15,5 @@ def one_hot(labels, classes=None):
 
     Returns: the one-hot matrix
     """
-    return K.utils.to_categorical(x=labels, num_classes=classes)
+
+    return K.utils.to_categorical(labels, classes)
