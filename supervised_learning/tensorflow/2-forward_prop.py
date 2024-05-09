@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Create a tensor layer.
+Creates the forward propagation graph.
 """
 
 import tensorflow.compat.v1 as tf
