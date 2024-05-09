@@ -1,4 +1,7 @@
 #!/usr/bin/env python3
+"""
+Creating placeholders for x, y.
+"""
 
 import tensorflow.compat.v1 as tf
 
