@@ -61,20 +61,21 @@ def train(X_train, Y_train, X_valid, Y_valid, layer_sizes, activations,
 
         # Training loop
         for i in range(iterations + 1):
+            train_loss, train_accuracy = sess.run(
+                [loss, accuracy], feed_dict={x: X_train, y: Y_train})
+            valid_loss, valid_accuracy = sess.run(
+                [loss, accuracy], feed_dict={x: X_valid, y: Y_valid})
+
             # Print metrics after every 100 iterations, the 0th & the last
-            if i % 100 == 0 or i == 0 or i == iterations:
-                train_loss, train_accuracy = sess.run(
-                    [loss, accuracy], feed_dict={x: X_train, y: Y_train})
-                valid_loss, valid_accuracy = sess.run(
-                    [loss, accuracy], feed_dict={x: X_valid, y: Y_valid})
+            if i % 100 == 0 or i == iterations:
                 print(f"After {i} iterations:")
                 print(f"\tTraining Cost: {train_loss}")
                 print(f"\tTraining Accuracy: {train_accuracy}")
                 print(f"\tValidation Cost: {valid_loss}")
                 print(f"\tValidation Accuracy: {valid_accuracy}")
 
-            # Train the model
-            sess.run(train_op, feed_dict={x: X_train, y: Y_train})
+            if i < iterations:
+                sess.run(train_op, feed_dict={x: X_train, y: Y_train})
 
         # Save the model
         save_path = saver.save(sess, save_path)
