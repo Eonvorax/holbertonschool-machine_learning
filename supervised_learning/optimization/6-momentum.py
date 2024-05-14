@@ -3,7 +3,7 @@
 Sets up gradient descent momentum optimization in TensorFlow.
 """
 
-import tensorflow.compat.v1 as tf
+import tensorflow as tf
 
 
 def create_momentum_op(alpha, beta1):
