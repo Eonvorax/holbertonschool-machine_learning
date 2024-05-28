@@ -39,7 +39,8 @@ def convolve_channels(images, kernel, padding='same', stride=(1, 1)):
     output_w = (w + 2 * pw - kw) // sw + 1
 
     # NOTE padding indexes: (before, after), shortcut is (padding,)
-    padded_imgs = np.pad(images, ((0, 0), (ph, ph), (pw, pw), (0, 0)), mode='constant')
+    padded_imgs = np.pad(images, ((0, 0), (ph, ph), (pw, pw), (0, 0)),
+                         mode='constant')
 
     # Initialize convolution output array
     convolved = np.zeros((m, output_h, output_w))
