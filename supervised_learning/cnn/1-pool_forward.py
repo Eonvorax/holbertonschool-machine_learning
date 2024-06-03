@@ -43,7 +43,7 @@ def pool_forward(A_prev, kernel_shape, stride=(1, 1), mode='max'):
 
     for i in range(output_h):
         for j in range(output_w):
-            # Extract region from images
+            # Extract region from input
             region = A_prev[:, i*sh:i*sh+kh, j*sw:j*sw+kw, :]
             # Pooling on each channel of this region
             pooled[:, i, j, :] = pooling_func(region, axis=(1, 2))
