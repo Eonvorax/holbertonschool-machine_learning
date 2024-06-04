@@ -34,7 +34,7 @@ def pool_backward(dA, A_prev, kernel_shape, stride=(1, 1), mode='max'):
     for i in range(m):  # Examples (images)
         for h in range(h_new):  # heights
             for w in range(w_new):  # widths
-                for c in range(c):  # channels
+                for f in range(c):  # channels
                     # Prepare slice indexes to account for stride
                     v_start = h * sh
                     v_end = v_start + kh
@@ -42,13 +42,13 @@ def pool_backward(dA, A_prev, kernel_shape, stride=(1, 1), mode='max'):
                     h_end = h_start + kw
                     # Update gradients for this channel
                     if mode == 'avg':
-                        avg_dA = dA[i, h, w, c] / kh / kw
-                        dA_prev[i, v_start:v_end, h_start:h_end, c] +=\
+                        avg_dA = dA[i, h, w, f] / kh / kw
+                        dA_prev[i, v_start:v_end, h_start:h_end, f] +=\
                             (np.ones((kh, kw)) * avg_dA)
                     elif mode == 'max':
-                        region = A_prev[i, v_start:v_end, h_start:h_end, c]
+                        region = A_prev[i, v_start:v_end, h_start:h_end, f]
                         mask = (region == np.max(region))
-                        dA_prev[i, v_start:v_end, h_start:h_end, c] +=\
-                            mask * dA[i, h, w, c]
+                        dA_prev[i, v_start:v_end, h_start:h_end, f] +=\
+                            mask * dA[i, h, w, f]
 
     return dA_prev
