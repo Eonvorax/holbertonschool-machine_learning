@@ -13,7 +13,7 @@ def identity_block(A_prev, filters):
 
     Parameters:
     A_prev : tensor
-        The output from the previous layer.
+        The output of the previous layer.
     filters : tuple or list
         Contains F11, F3, F12 respectively:
             F11 : int
@@ -40,8 +40,8 @@ def identity_block(A_prev, filters):
                             kernel_initializer=init)(A_prev)
 
     norm1 = K.layers.BatchNormalization(axis=-1)(conv1)
-    relu1 = K.layers.Activation(activation='relu')(norm1)
-    # NOTE could also use K.layers.ReLU() directly instead
+    relu1 = K.layers.Activation(activation="relu")(norm1)
+    # NOTE could also use layers.ReLU() directly instead
 
     # Second layer of left branch
     conv2 = K.layers.Conv2D(filters=F3,
@@ -50,7 +50,7 @@ def identity_block(A_prev, filters):
                             padding="same",
                             kernel_initializer=init)(relu1)
     norm2 = K.layers.BatchNormalization(axis=-1)(conv2)
-    relu2 = K.layers.Activation(activation='relu')(norm2)
+    relu2 = K.layers.Activation(activation="relu")(norm2)
 
     # Final layer of left branch
     conv3 = K.layers.Conv2D(filters=F12,
@@ -64,4 +64,4 @@ def identity_block(A_prev, filters):
     merged = K.layers.Add()([norm3, A_prev])
 
     # Return activated output of merge, using ReLU
-    return K.layers.Activation(activation='relu')(merged)
+    return K.layers.Activation(activation="relu")(merged)
