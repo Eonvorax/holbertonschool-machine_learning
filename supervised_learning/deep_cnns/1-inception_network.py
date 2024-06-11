@@ -3,7 +3,8 @@
 Inception Network
 """
 
-from tensorflow import keras as K
+# from tensorflow import keras as K
+import keras as K
 inception_block = __import__('0-inception_block').inception_block
 
 
@@ -71,9 +72,10 @@ def inception_network():
     inception_5a = inception_block(maxpool_4, [256, 160, 320, 32, 128, 128])
     inception_5b = inception_block(inception_5a, [384, 192, 384, 48, 128, 128])
 
-    avg_pool = K.layers.AvgPool2D((7, 7), (1, 1), padding="same")(inception_5b)
+    avg_pool = K.layers.AvgPool2D(pool_size=(7, 7),
+                                  strides=(1, 1))(inception_5b)
 
-    dropout = K.layers.Dropout(0.4)(avg_pool)
+    dropout = K.layers.Dropout(rate=0.4)(avg_pool)
 
     outputs = K.layers.Dense(units=1000, activation="softmax")(dropout)
 
