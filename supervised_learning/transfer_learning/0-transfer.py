@@ -36,19 +36,22 @@ def build_model():
     # from keras.api.applications.densenet import DenseNet121
     # NOTE might have to set input_shape
     base_model = K.applications.DenseNet121(weights='imagenet',
-                             include_top=False,
-                             classes=10,
-                             input_shape=(224, 224, 3))
+                                            include_top=False,
+                                            classes=10,
+                                            input_shape=(224, 224, 3))
 
-    # Unfreeze the last block (last 10 layers)
-    for layer in base_model.layers[-10:]:
-        layer.trainable = True
+    base_model.trainable = False
+    # # Unfreeze the last block (last 10 layers)
+    # for layer in base_model.layers[:-10]:
+    #     layer.trainable = False
 
     # Functional API approach
     inputs = K.Input(shape=(32, 32, 3))
     resized_inputs = K.layers.Lambda(
         lambda x: K.preprocessing.image.smart_resize(x, (224, 224)))(inputs)
-    base_model_output = base_model(resized_inputs)
+
+    # NOTE running in inference mode, needs testing
+    base_model_output = base_model(resized_inputs, training=False)
 
     # x = K.layers.Flatten()(base_model_output)
     x = K.layers.GlobalAveragePooling2D()(base_model_output)
@@ -59,21 +62,23 @@ def build_model():
 
 
 if __name__ == "__main__":
-    # load data
+    # Load data from CIFAR-10
     (x_train, y_train), (x_test, y_test) = K.datasets.cifar10.load_data()
 
     # preprocessing for DenseNet
-    X_train, y_train = preprocess_data(x_train, y_train)
-    X_test, y_test = preprocess_data(x_test, y_test)
+    x_train, y_train = preprocess_data(x_train, y_train)
+    x_test, y_test = preprocess_data(x_test, y_test)
 
+    # Build and compile the new model, show summary
     model = build_model()
-    model.compile(optimizer=K.optimizers.Adam(1e-4),
+    model.compile(optimizer=K.optimizers.Adam(),
                   loss='categorical_crossentropy',
                   metrics=['accuracy'])
+    model.summary()
 
-    # Early stopping callback
+    # Callbacks: early stopping and model checkpoint
     early_stopping = K.callbacks.EarlyStopping(
-        monitor='val_accuracy', patience=3, restore_best_weights=False)
+        monitor='val_accuracy', patience=5, restore_best_weights=False)
     checkpoint = K.callbacks.ModelCheckpoint(filepath='cifar10.h5',
                                              monitor='val_accuracy',
                                              save_best_only=True,
@@ -82,12 +87,25 @@ if __name__ == "__main__":
     # Train the model
     history = model.fit(x_train, y_train,
                         epochs=10,
-                        batch_size=64,
-                        validation_split=0.2,
+                        validation_data=(x_test, y_test),
                         callbacks=[early_stopping, checkpoint],
                         verbose=1)
+
+    model.trainable = True
+    model.compile(optimizer=K.optimizers.Adam(1e-5),
+                  loss='categorical_crossentropy',
+                  metrics=['accuracy'])
+    model.summary()
+
+    finetuning_history = model.fit(x_train, y_train,
+                                   epochs=10,
+                                   validation_data=(x_test, y_test),
+                                   callbacks=[early_stopping, checkpoint],
+                                   verbose=1)
+
+    # Save model in h5 format
+    model.save(filepath='cifar10.h5', save_format='h5')
 
     # Evaluate on test set
     loss, accuracy = model.evaluate(x_test, y_test, verbose=1)
     print(f'Test accuracy: {accuracy * 100:.2f}%')
-    # model.summary()
