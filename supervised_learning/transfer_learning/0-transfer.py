@@ -3,9 +3,7 @@
 Transfer Knowledge
 """
 
-# from tensorflow import keras as K
-import keras as K
-import tensorflow as tf
+from tensorflow import keras as K
 
 
 def preprocess_data(X, Y):
@@ -35,9 +33,9 @@ def build_model():
     the correct size for CIFAR-10.
     The following layers are added for feature classification.
     """
-    from keras.src.applications.densenet import DenseNet121
+    # from keras.api.applications.densenet import DenseNet121
     # NOTE might have to set input_shape
-    base_model = DenseNet121(weights='imagenet',
+    base_model = K.applications.DenseNet121(weights='imagenet',
                              include_top=False,
                              classes=10,
                              input_shape=(224, 224, 3))
@@ -47,9 +45,9 @@ def build_model():
         layer.trainable = True
 
     # Functional API approach
-    inputs = tf.keras.Input(shape=(32, 32, 3))
+    inputs = K.Input(shape=(32, 32, 3))
     resized_inputs = K.layers.Lambda(
-        lambda x: tf.image.resize(x, (224, 224)))(inputs)
+        lambda x: K.preprocessing.image.smart_resize(x, (224, 224)))(inputs)
     base_model_output = base_model(resized_inputs)
 
     # x = K.layers.Flatten()(base_model_output)
@@ -75,14 +73,19 @@ if __name__ == "__main__":
 
     # Early stopping callback
     early_stopping = K.callbacks.EarlyStopping(
-        monitor='val_accuracy', patience=3, restore_best_weights=True)
+        monitor='val_accuracy', patience=3, restore_best_weights=False)
+    checkpoint = K.callbacks.ModelCheckpoint(filepath='cifar10.h5',
+                                             monitor='val_accuracy',
+                                             save_best_only=True,
+                                             mode='max')
 
     # Train the model
     history = model.fit(x_train, y_train,
                         epochs=10,
                         batch_size=64,
                         validation_split=0.2,
-                        callbacks=[early_stopping])
+                        callbacks=[early_stopping, checkpoint],
+                        verbose=1)
 
     # Evaluate on test set
     loss, accuracy = model.evaluate(x_test, y_test, verbose=1)
