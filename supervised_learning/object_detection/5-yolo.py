@@ -298,15 +298,20 @@ class Yolo:
         """
         pimages = []
         image_shapes = []
-        input_h, input_w = self.model.input.shape[1:3]
+        input_h = self.model.input.shape[1]
+        input_w = self.model.input.shape[2]
 
         for img in images:
             # Resize image with inter-cubic interpolation
             resized_img = cv2.resize(
-                img, (input_w, input_h), interpolation=cv2.INTER_CUBIC)
+                img, (input_h, input_w), interpolation=cv2.INTER_CUBIC)
+
             # Rescale pixel values from [0, 255] to [0, 1]
             pimages.append(resized_img / 255.0)
-            image_shapes.append([*img.shape[:2]])
+
+            # Add image shape to shapes array
+            orig_h, orig_w = img.shape[:2]
+            image_shapes.append([orig_h, orig_w])
 
         pimages = np.array(pimages)
         image_shapes = np.array(image_shapes)
