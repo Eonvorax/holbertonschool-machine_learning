@@ -372,16 +372,53 @@ class Yolo:
 
     def predict(self, folder_path):
         """
-        """
-        images, image_paths = self.load_images(folder_path)
-        pimages, image_shapes = self.preprocess_images(images=images)
-        model_outputs = self.model.predict(pimages)
-        predictions = []
-        for output, pimage, path, shape in zip(model_outputs, pimages, image_paths, image_shapes):
-            boxes, box_confidences, box_class_probs = self.process_outputs(output, shape)
-            filtered_boxes, box_classes, box_scores = self.filter_boxes(boxes, box_confidences, box_class_probs)
-            box_preds, pred_box_classes, pred_box_scores = self.non_max_suppression(filtered_boxes, box_classes, box_scores)
-            predictions.append((box_preds, pred_box_classes, pred_box_scores))
-            self.show_boxes(pimage, box_preds, pred_box_classes, pred_box_scores, os.path.basename(path))
+        Predicts objects in all images within a folder and displays them with
+        bounding boxes.
 
-        return (predictions, image_paths)
+        Arguments:
+            folder_path -- str, the path to the folder holding all the images
+            to predict.
+
+        Returns:
+        A tuple of (predictions, image_paths):
+            predictions -- a list of tuples for each image of
+                (boxes, box_classes, box_scores)
+            image_paths -- a list of image paths corresponding to each
+            prediction in predictions
+        """
+        predictions = []
+
+        # Load images from the given folder
+        images, images_paths = self.load_images(folder_path)
+
+        # Preprocess all the images
+        pimages, image_shape = self.preprocess_images(images)
+
+        # Load model predictions on preprocessed images
+        model_predictions = self.model.predict(pimages)
+
+        # Iterate over the model predictions and corresponding image details
+        for img, img_path, img_shape, idx in zip(images,
+                                                 images_paths,
+                                                 image_shape,
+                                                 range(len(pimages))):
+            output = [model_predictions[j][idx]
+                      for j in range(len(model_predictions))]
+
+            boxes, box_confidences, box_class_probs = self.process_outputs(
+                output, img_shape)
+            filtered_boxes, box_classes, box_scores = self.filter_boxes(
+                boxes, box_confidences, box_class_probs)
+            box_preds, pred_box_classes, pred_box_scores = \
+                self.non_max_suppression(
+                    filtered_boxes, box_classes, box_scores)
+
+            predictions.append(
+                (box_preds, pred_box_classes, pred_box_scores))
+
+            self.show_boxes(image=img, boxes=box_preds,
+                            box_classes=pred_box_classes,
+                            box_scores=pred_box_scores,
+                            file_name=img_path)
+
+        return predictions, images_paths
