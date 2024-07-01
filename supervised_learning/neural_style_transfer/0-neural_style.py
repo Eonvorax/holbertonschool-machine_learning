@@ -111,17 +111,16 @@ class NST:
             new_h = 512
             new_w = int((w * 512) / h)
 
-        # Rescale pixel values to the range [0, 1]
-        image = image / 255
-
         # Resize image (with bicubic interpolation)
         image_resized = tf.image.resize(
             image, [new_h, new_w],
             method=tf.image.ResizeMethod.BICUBIC)
 
+        # Normalize pixel values to the range [0, 1]
+        image = image / 255
+
         # Clip values to ensure they are within [0, 1] range
         image_resized = tf.clip_by_value(image_resized, 0, 1)
 
         # Add batch dimension on axis 0 and return
-        image_resized = tf.expand_dims(image_resized, axis=0)
-        return image_resized
+        return tf.expand_dims(image_resized, axis=0)
