@@ -13,9 +13,11 @@ class NST:
     The NST class performs tasks for neural style transfer.
 
     Public Class Attributes:
-    - style_layers: A list of layers to be used for style extraction, defaulting to
-      ['block1_conv1', 'block2_conv1', 'block3_conv1', 'block4_conv1', 'block5_conv1'].
-    - content_layer: The layer to be used for content extraction, defaulting to 'block5_conv2'.
+    - style_layers: A list of layers to be used for style extraction,
+    defaulting to ['block1_conv1', 'block2_conv1', 'block3_conv1',
+    'block4_conv1', 'block5_conv1'].
+    - content_layer: The layer to be used for content extraction,
+    defaulting to 'block5_conv2'.
     """
     style_layers = ['block1_conv1', 'block2_conv1',
                     'block3_conv1', 'block4_conv1', 'block5_conv1']
@@ -27,7 +29,7 @@ class NST:
 
         Parameters:
         - style_image (numpy.ndarray): The image used as a style reference.
-        - content_image (numpy.ndarray): The image used as a content reference.
+        - content_image (numpy.ndarray): The image used as a content reference
         - alpha (float): The weight for content cost. Default is 1e4.
         - beta (float): The weight for style cost. Default is 1.
 
@@ -50,15 +52,14 @@ class NST:
         - beta: The weight for style cost.
         """
         if (not isinstance(style_image, np.ndarray) or
-                style_image.ndim != 3 or
-                style_image.shape[2] != 3):
+                style_image.ndim != 3 or style_image.shape[2] != 3):
             raise TypeError(
                 "style_image must be a numpy.ndarray with shape (h, w, 3)"
             )
 
-
-        if not isinstance(content_image, np.ndarray) or style_image.ndim != 3 \
-                or content_image.shape[2] != 3:
+        if (not isinstance(content_image, np.ndarray)
+                or style_image.ndim != 3
+                or content_image.shape[2] != 3):
             raise TypeError(
                 "content_image must be a numpy.ndarray with shape (h, w, 3)")
 
@@ -95,7 +96,9 @@ class NST:
           The image is resized using bicubic interpolation, and its pixel
           values are rescaled from the range [0, 255] to [0, 1].
         """
-        if not isinstance(image, np.ndarray) or image.ndim != 3 or image.shape[2] != 3:
+        if (not isinstance(image, np.ndarray)
+                or image.ndim != 3
+                or image.shape[2] != 3):
             raise TypeError(
                 "image must be a numpy.ndarray with shape (h, w, 3)")
 
