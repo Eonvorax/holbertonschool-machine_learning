@@ -104,24 +104,23 @@ class NST:
 
         h, w = image.shape[:2]
 
-        if h > w:
-            new_h = 512
-            new_w = int(w * (512 / h))
-        else:
+        if w > h:
             new_w = 512
-            new_h = int(h * (512 / w))
+            new_h = int((h * 512) / w)
+        else:
+            new_h = 512
+            new_w = int((w * 512) / h)
 
         # Rescale pixel values to the range [0, 1]
-        image = image / 255.0
+        image = image / 255
 
         # Resize image (with bicubic interpolation)
         image_resized = tf.image.resize(
             image, [new_h, new_w],
-            method=tf.image.ResizeMethod.BICUBIC,
-            preserve_aspect_ratio=True)
+            method=tf.image.ResizeMethod.BICUBIC)
 
         # Clip values to ensure they are within [0, 1] range
-        image_resized = tf.clip_by_value(image_resized, 0.0, 1.0)
+        image_resized = tf.clip_by_value(image_resized, 0, 1)
 
         # Add batch dimension on axis 0 and return
         image_resized = tf.expand_dims(image_resized, axis=0)
