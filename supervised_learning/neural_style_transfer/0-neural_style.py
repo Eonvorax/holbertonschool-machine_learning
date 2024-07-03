@@ -51,15 +51,14 @@ class NST:
         - alpha: The weight for content cost.
         - beta: The weight for style cost.
         """
-        if (not isinstance(style_image, np.ndarray) or
-                style_image.ndim != 3 or style_image.shape[2] != 3):
+        if (not isinstance(style_image, np.ndarray)
+                or style_image.shape[-1] != 3):
             raise TypeError(
                 "style_image must be a numpy.ndarray with shape (h, w, 3)"
             )
 
         if (not isinstance(content_image, np.ndarray)
-                or style_image.ndim != 3
-                or content_image.shape[2] != 3):
+                or content_image.shape[-1] != 3):
             raise TypeError(
                 "content_image must be a numpy.ndarray with shape (h, w, 3)")
 
@@ -96,9 +95,7 @@ class NST:
           The image is resized using bicubic interpolation, and its pixel
           values are rescaled from the range [0, 255] to [0, 1].
         """
-        if (not isinstance(image, np.ndarray)
-                or image.ndim != 3
-                or image.shape[2] != 3):
+        if (not isinstance(image, np.ndarray) or image.shape[-1] != 3):
             raise TypeError(
                 "image must be a numpy.ndarray with shape (h, w, 3)")
 
