@@ -72,7 +72,7 @@ class NST:
         self.content_image = self.scale_image(content_image)
         self.alpha = alpha
         self.beta = beta
-        self.model = self.load_model()
+        self.load_model()
 
     @staticmethod
     def scale_image(image):
@@ -127,18 +127,22 @@ class NST:
         """
         Load the VGG19 model with AveragePooling2D instead of MaxPooling2D.
         """
-        vgg19 = tf.keras.applications.VGG19(include_top=False)
-        vgg19.trainable = False
-        vgg19.save("vgg_base_model.h5")
-        model = tf.keras.models.load_model(
-            "vgg_base_model.h5",
-            custom_objects={
-                "MaxPooling2D": tf.keras.layers.AveragePooling2D(
-                    pool_size=(2, 2)
-                )
-            })
+        # Load VGG19 model from Keras API
+        vgg = tf.keras.applications.VGG19(
+            include_top=False, weights='imagenet')
 
-        outputs = ([model.get_layer(layer).output
-                   for layer in self.style_layers]
-                   + [model.get_layer(self.content_layer).output])
-        return tf.keras.models.Model(model.input, outputs)
+        vgg.trainable = False
+        # Replace MaxPooling2D layers with AveragePooling2D layers
+        for layer in vgg.layers:
+            if isinstance(layer, tf.keras.layers.MaxPooling2D):
+                layer.__class__ = tf.keras.layers.AveragePooling2D
+
+        # get outputs of the style and content layers from modified VGG19
+        style_outputs = [vgg.get_layer(
+            name).output for name in self.style_layers]
+        content_output = vgg.get_layer(self.content_layer).output
+
+        # Create the model, make it non-trainable and return it
+        self.model = tf.keras.models.Model(
+            inputs=vgg.input,
+            outputs=style_outputs + [content_output])
