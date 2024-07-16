@@ -196,6 +196,10 @@ def definiteness(matrix):
             or matrix.size == 0):
         return None
 
+    # Checking matrix symmetry
+    if not np.allclose(matrix, matrix.T):
+        return None
+
     # Only the eigenvalues, no need for eigenvectors,
     eigenvalues, _ = np.linalg.eig(matrix)
 
