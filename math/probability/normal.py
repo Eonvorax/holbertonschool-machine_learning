@@ -91,3 +91,30 @@ class Normal:
         coefficient = 1 / (self.stddev * (2 * Normal.pi) ** 0.5)
         exponent = -((x - self.mean) ** 2) / (2 * self.stddev ** 2)
         return coefficient * (Normal.e ** exponent)
+
+    def _erf(self, z):
+        """
+        Calculates the error function value for a given z.
+
+        Parameters:
+        z (float): The z-value.
+
+        Returns:
+        float: The error function value for z.
+        """
+        erf_sum = z - (z ** 3) / 3 + (z ** 5) / 10 \
+            - (z ** 7) / 42 + (z ** 9) / 216
+        return (2 / self.pi ** 0.5) * erf_sum
+
+    def cdf(self, x):
+        """
+        Calculates the value of the CDF for a given x-value.
+
+        Parameters:
+        x (float): The x-value.
+
+        Returns:
+        float: The CDF value for x.
+        """
+        z = (x - self.mean) / (self.stddev * (2 ** 0.5))
+        return 0.5 * (1 + self._erf(z))
