@@ -9,6 +9,9 @@ class Poisson:
     """
     Represents a Poisson distribution.
     """
+    # Using given approximations
+    e = 2.7182818285
+
     def __init__(self, data=None, lambtha=1.):
         """
         Initializes the Poisson distribution.
@@ -42,3 +45,34 @@ class Poisson:
             if len(data) < 2:
                 raise ValueError("data must contain multiple values")
             self.lambtha = float(sum(data) / len(data))
+
+    def pmf(self, k):
+        """
+        Calculates the value of the PMF for a given number of “successes”.
+
+        Parameters:
+        - `k` (int or float): The number of “successes”.
+
+        If k is not an integer, it will be converted to an integer.
+        If k is out of range (k < 0), it will return 0.
+
+        Returns:
+        - float: The PMF value for k.
+        """
+        e = Poisson.e
+        k = int(k)
+        if k < 0:
+            return 0
+        # PMF formula, for Poisson distribution
+        return (e ** -self.lambtha) * (self.lambtha ** k) / self._factorial(k)
+
+    def _factorial(self, n):
+        """
+        Calculates the factorial of a given number `n`.
+        """
+        if n == 0:
+            return 1
+        result = 1
+        for i in range(1, n + 1):
+            result *= i
+        return result
