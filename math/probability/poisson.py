@@ -76,3 +76,28 @@ class Poisson:
         for i in range(1, n + 1):
             result *= i
         return result
+
+    def cdf(self, k):
+        """
+        Calculates the value of the CDF for a given number of “successes”.
+
+        Parameters:
+        k (int or float): The number of “successes”.
+
+        If k is not an integer, it will be converted to an integer.
+        If k is out of range (k < 0), it will return 0.
+
+        Returns:
+        float: The CDF value for k.
+        """
+        k = int(k)
+        if k < 0:
+            return 0
+
+        # CDF formula for Poisson distribution: sum of PMFs, from 0 to k
+        cdf_sum = 0
+        for i in range(k + 1):
+            cdf_sum += (Poisson.e ** -self.lambtha) * \
+                (self.lambtha ** i) / self._factorial(i)
+
+        return cdf_sum
