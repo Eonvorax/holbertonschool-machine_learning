@@ -9,6 +9,7 @@ class Binomial:
     """
     Represents a binomial distribution
     """
+
     def __init__(self, data=None, n=1, p=0.5):
         """
         Initializes the binomial distribution.
@@ -59,3 +60,57 @@ class Binomial:
             # Using recalculated p value
             self.n = n_est
             self.p = p_est
+
+    def _factorial(self, n):
+        """
+        Calculates the factorial of a given number `n`.
+        """
+        if n == 0:
+            return 1
+        result = 1
+        for i in range(1, n + 1):
+            result *= i
+        return result
+
+    def pmf(self, k):
+        """
+        Calculates the value of the PMF for a given number of “successes”.
+
+        Parameters:
+        k (int): The number of “successes”.
+
+        Returns:
+        float: The PMF value for k.
+        If k is out of range (k < 0 or k > n), returns 0.
+        """
+        if not isinstance(k, int):
+            k = int(k)
+
+        if k < 0 or k > self.n:
+            return 0
+
+        # binomial coefficient
+        nck = self._factorial(self.n) / (self._factorial(k)
+                                         * self._factorial(self.n - k))
+        # Use binomial coeff. to calculate the PMF
+        return nck * (self.p ** k) * ((1 - self.p) ** (self.n - k))
+
+    def cdf(self, k):
+        """
+        Calculates the value of the CDF for a given number of “successes”.
+
+        Parameters:
+        k (int): The number of “successes”.
+
+        Returns:
+        float: The CDF value for k.
+        If k is out of range (k < 0 or k > n), returns 0.
+        """
+        if not isinstance(k, int):
+            k = int(k)
+
+        if k < 0 or k > self.n:
+            return 0
+
+        # As before, the CDF is the sum of PMFs for each "success"
+        return sum(self.pmf(i) for i in range(k + 1))
