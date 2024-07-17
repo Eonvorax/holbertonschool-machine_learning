@@ -9,6 +9,9 @@ class Normal:
     """
     Represents a normal distribution
     """
+    # Using given approximations
+    e = 2.7182818285
+    pi = 3.1415926536
 
     def __init__(self, data=None, mean=0., stddev=1.):
         """
@@ -73,3 +76,18 @@ class Normal:
         float: The x-value corresponding to z.
         """
         return self.mean + (z * self.stddev)
+
+    def pdf(self, x):
+        """
+        Calculates the value of the PDF for a given x-value.
+
+        Parameters:
+        x (float): The x-value.
+
+        Returns:
+        float: The PDF value for x.
+        """
+        # Using the formula for normal distribution
+        coefficient = 1 / (self.stddev * (2 * Normal.pi) ** 0.5)
+        exponent = -((x - self.mean) ** 2) / (2 * self.stddev ** 2)
+        return coefficient * (Normal.e ** exponent)
