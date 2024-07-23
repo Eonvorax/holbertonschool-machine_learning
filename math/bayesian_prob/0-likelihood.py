@@ -43,5 +43,5 @@ def likelihood(x, n, P):
 
 def binomial_coefficient(n, k):
     """Compute the binomial coefficient using numpy factorial."""
-    return np.math.factorial(n) // \
+    return np.math.factorial(n) /\
         (np.math.factorial(k) * np.math.factorial(n - k))
