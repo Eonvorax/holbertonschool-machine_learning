@@ -29,7 +29,7 @@ def mean_cov(X):
         raise ValueError("X must contain multiple data points")
 
     # Calculate the means for each dimension
-    means = np.mean(X, axis=0)
+    means = np.mean(X, axis=0).reshape(1, d)
 
     # Center data: subtract the mean
     X_centered = X - means
