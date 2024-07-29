@@ -76,7 +76,8 @@ def kmeans(X, k, iterations=1000):
             # Mask: points present in cluster
             cluster_mask = X[clss == i]
             if len(cluster_mask) == 0:
-                new_ctds[i] = initialize(X, 1)
+                new_ctds[i] = np.random.uniform(
+                    np.min(X, axis=0), np.max(X, axis=0), size=(X.shape[1],))
             else:
                 new_ctds[i] = np.mean(cluster_mask, axis=0)
 
@@ -84,11 +85,6 @@ def kmeans(X, k, iterations=1000):
         if np.allclose(new_ctds, centroids):
             # Found the final centroids, returning them
             return centroids, clss
-
-        # Recalculate cluster assignments
-        clss = np.argmin(
-            np.linalg.norm(X[:, np.newaxis] - centroids, axis=2), axis=1
-        )
 
         # Didn't achieve convergence, switching to new centroids
         centroids = new_ctds
