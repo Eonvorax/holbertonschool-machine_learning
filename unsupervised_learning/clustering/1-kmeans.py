@@ -85,6 +85,11 @@ def kmeans(X, k, iterations=1000):
             # Found the final centroids, returning them
             return centroids, clss
 
+        # Recalculate cluster assignments
+        clss = np.argmin(
+            np.linalg.norm(X[:, np.newaxis] - centroids, axis=2), axis=1
+        )
+
         # Didn't achieve convergence, switching to new centroids
         centroids = new_ctds
 
