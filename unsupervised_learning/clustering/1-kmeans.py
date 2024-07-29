@@ -73,7 +73,7 @@ def kmeans(X, k, iterations=1000):
         # Computing new centroids
         new_ctds = np.copy(centroids)
         for i in range(k):
-            # Mask for points present in cluster
+            # Mask: points present in cluster
             cluster_mask = X[clss == i]
             if len(cluster_mask) == 0:
                 new_ctds[i] = initialize(X, 1)
@@ -82,7 +82,7 @@ def kmeans(X, k, iterations=1000):
 
         # Convergence check (points haven't changed clusters)
         if np.allclose(new_ctds, centroids):
-            # Found the final spots for centroids, returning them
+            # Found the final centroids, returning them
             return centroids, clss
 
         # Didn't achieve convergence, switching to new centroids
