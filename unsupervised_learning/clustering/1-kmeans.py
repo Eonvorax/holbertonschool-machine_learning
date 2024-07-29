@@ -80,6 +80,8 @@ def kmeans(X, k, iterations=1000):
             else:
                 new_ctds[i] = np.mean(cluster_mask, axis=0)
 
+        dists = np.sqrt(np.sum((X - centroids[:, np.newaxis]) ** 2, axis=2))
+        clss = np.argmin(dists, axis=0)
         # Convergence check (points haven't changed clusters)
         if np.allclose(new_ctds, centroids):
             # Found the final centroids, returning them
