@@ -38,6 +38,6 @@ def initialize(X, k):
         return None, None, None
 
     # S is initialized with identity matrices
-    S = np.array([np.eye(X.shape[1]) for _ in range(k)])
+    S = np.tile(np.eye(X.shape[1]), (k, 1, 1))
 
     return pi, m, S
