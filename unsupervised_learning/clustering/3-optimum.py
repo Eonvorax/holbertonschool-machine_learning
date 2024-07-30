@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Optimizing k for Kmeans
+Optimizing k - Kmeans
 """
 
 import numpy as np
@@ -32,6 +32,8 @@ def optimum_k(X, kmin=1, kmax=None, iterations=1000):
     if kmax is not None and (not isinstance(kmax, int) or kmax < kmin):
         return None, None
     if not isinstance(iterations, int) or iterations <= 0:
+        return None, None
+    if isinstance(kmax, int) and kmax <= kmin:
         return None, None
 
     if kmax is None:
