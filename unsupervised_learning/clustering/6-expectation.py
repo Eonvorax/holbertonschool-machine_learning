@@ -34,6 +34,9 @@ def expectation(X, pi, m, S):
             pi.shape[0] != m.shape[0] or pi.shape[0] != S.shape[0]):
         return None, None
 
+    if not np.isclose([np.sum(pi)], [1])[0]:
+        return None, None
+
     k = pi.shape[0]
 
     # Build array of PDF values w/ each cluster
