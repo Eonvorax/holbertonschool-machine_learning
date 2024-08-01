@@ -58,6 +58,8 @@ def BIC(X, kmin=1, kmax=None, iterations=1000, tol=1e-5, verbose=False):
     if kmax is None:
         # Undefined, set to maximum possible
         kmax = n
+    if not isinstance(kmax, int) or kmax < 1 or kmax < kmin or kmax > n:
+        return None, None, None, None
 
     b = []
     likelihoods = []
