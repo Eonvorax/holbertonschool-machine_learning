@@ -39,4 +39,5 @@ def regular(P):
     steady_state = eigenvectors[:, index]
 
     # Return the normalized value (a probability distribution)
-    return steady_state / np.sum(steady_state)
+    steady_state = steady_state / np.sum(steady_state)
+    return steady_state.reshape(1, n)
