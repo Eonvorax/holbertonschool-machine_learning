@@ -6,11 +6,11 @@ Variational Autoencoder
 import tensorflow.keras as keras
 
 
-def sampling(args):
+def sampling(args, latent_dims):
     """
     Samples from a distribution (reparameterization trick)
     """
-    z_mean, z_log_sigma, latent_dims = args
+    z_mean, z_log_sigma = args
     epsilon = keras.backend.random_normal(
         shape=(keras.backend.shape(z_mean)[0],
                latent_dims))
@@ -35,8 +35,8 @@ def build_encoder(input_dims, hidden_layers, latent_dims):
     log_var = keras.layers.Dense(latent_dims, activation=None)(x)
 
     # Sampling layer using the reparameterization trick
-    z = keras.layers.Lambda(sampling, output_shape=(
-        latent_dims,))([mean, log_var, latent_dims])
+    z = keras.layers.Lambda(lambda x: sampling(
+        x, latent_dims))([mean, log_var])
 
     model_encoder = keras.Model(
         inputs=encoder_input, outputs=[mean, log_var, z])
