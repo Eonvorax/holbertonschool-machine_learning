@@ -44,7 +44,7 @@ def build_model(input_shape):
 
 
 def main():
-    npz_file = "preprocessed_data_generator.npz"  # Adjust the file path accordingly
+    npz_file = "preprocessed_data_raw.npz"  # Adjust the file path accordingly
 
     # Load the preprocessed time series data
     X_train, y_train, X_val, y_val, X_test, y_test = load_data(npz_file)

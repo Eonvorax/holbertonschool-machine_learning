@@ -1,19 +1,20 @@
 #!/usr/bin/env python3
 """
-Preprocessing the data for BTC price prediction using Keras TimeseriesGenerator.
+Preprocessing the data for BTC price prediction.
 """
 
 import pandas as pd
 from sklearn.preprocessing import MinMaxScaler
 import numpy as np
-from keras.preprocessing.sequence import TimeseriesGenerator
 
 
-def load_data(file_path):
+def load_data(file_path, chunk_size=100000):
     """
-    Load CSV data into a pandas DataFrame.
+    Load CSV data into a pandas DataFrame in chunks.
     """
-    return pd.read_csv(file_path)
+    chunks = pd.read_csv(file_path, chunksize=chunk_size)
+    df = pd.concat(chunks, ignore_index=True)
+    return df
 
 
 def merge_datasets(df1: pd.DataFrame, df2: pd.DataFrame, columns):
@@ -40,34 +41,22 @@ def rescale_data(df):
     scaled_values = scaler.fit_transform(
         df.iloc[:, 1:])  # Exclude the 'Timestamp' column
     df.iloc[:, 1:] = scaled_values
-    return df, scaler
+    return df
 
 
-def create_time_series_data_with_generator(df, target_column='Close', past_window=1440, future_window=60, batch_size=32):
+def create_time_series_data(df, target_column='Close', past_window=1440, future_window=60):
     """
-    Use Keras TimeseriesGenerator to create input-output sequences for time series prediction.
-
-    :param df: DataFrame with scaled BTC data.
-    :param target_column: The target column to predict (e.g., 'Close').
-    :param past_window: Number of minutes (rows) to use for past data (default: 1440 = 24 hours).
-    :param future_window: Number of minutes (rows) to predict (default: 60 = 1 hour).
-    :param batch_size: Number of samples per batch (default: 32).
-    :return: Keras TimeseriesGenerator for training data.
+    Create input-output sequences for time series prediction.
     """
     data = df.drop(columns=['Timestamp']).values  # Remove 'Timestamp' column
     target = df[target_column].values  # Target variable (e.g., 'Close')
 
-    generator = TimeseriesGenerator(
-        data, target,
-        length=past_window,  # Past 24 hours of data
-        sampling_rate=1,
-        stride=1,
-        batch_size=batch_size,
-        # Ensure we have enough future data
-        end_index=len(data) - future_window
-    )
+    X, y = [], []
+    for i in range(len(data) - past_window - future_window + 1):
+        X.append(data[i:i + past_window])
+        y.append(target[i + past_window + future_window - 1])
 
-    return generator
+    return np.array(X, dtype="float32"), np.array(y, dtype="float32")
 
 
 def remove_first_half(df):
@@ -79,8 +68,16 @@ def remove_first_half(df):
     return df
 
 
+def subsample_data(df, freq=10):
+    """
+    Subsample the data by taking one row every `freq` minutes.
+    """
+    df = df.iloc[::freq].reset_index(drop=True)
+    return df
+
+
 def main():
-    # Load the datasets
+    # Load the datasets in chunks
     df_coinbase = load_data("datasets/coinbase.csv")
     df_bitstamp = load_data("datasets/bitstamp.csv")
 
@@ -94,17 +91,20 @@ def main():
     # Merge the datasets
     merged_df = merge_datasets(df_coinbase, df_bitstamp, columns)
 
+    # Subsample the data
+    # Take one data point every 10 minutes
+    merged_df = subsample_data(merged_df, freq=60)
+
     # Rescale the data
-    merged_df, scaler = rescale_data(merged_df)
+    merged_df = rescale_data(merged_df)
 
-    # Create time series generator using Keras's TimeseriesGenerator
-    generator = create_time_series_data_with_generator(merged_df)
+    # Create time series data
+    X, y = create_time_series_data(merged_df)
 
-    # Save the generator for future use (optional, if you plan to save it or use it later)
-    np.savez("preprocessed_data_generator.npz",
-             data=generator.data, targets=generator.targets)
+    # Save the data in chunks to avoid memory issues
+    np.savez_compressed("preprocessed_data_raw.npz", data=X, targets=y)
 
-    print(f"Generated {len(generator)} time-series samples using Keras TimeseriesGenerator.")
+    print(f"Data saved: X shape {X.shape}, y shape {y.shape}")
 
 
 if __name__ == "__main__":
