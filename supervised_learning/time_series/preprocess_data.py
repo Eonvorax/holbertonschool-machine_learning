@@ -4,7 +4,6 @@ Preprocessing the data for BTC price prediction.
 """
 
 import pandas as pd
-from sklearn.preprocessing import MinMaxScaler
 import numpy as np
 
 
@@ -31,17 +30,6 @@ def merge_datasets(df1: pd.DataFrame, df2: pd.DataFrame, columns):
     merged_df = merged_df[['Timestamp'] + columns[1:]]  # Keep original columns
     merged_df = merged_df.dropna()  # Drop rows with missing values
     return merged_df
-
-
-def rescale_data(df):
-    """
-    Rescale the features using MinMaxScaler to range [0, 1].
-    """
-    scaler = MinMaxScaler()
-    scaled_values = scaler.fit_transform(
-        df.iloc[:, 1:])  # Exclude the 'Timestamp' column
-    df.iloc[:, 1:] = scaled_values
-    return df
 
 
 def create_time_series_data(df, target_column='Close', past_window=1440, future_window=60):
@@ -77,26 +65,22 @@ def subsample_data(df, freq=10):
 
 
 def main():
-    # Load the datasets in chunks
-    df_coinbase = load_data("datasets/coinbase.csv")
-    df_bitstamp = load_data("datasets/bitstamp.csv")
+    # Load the datasets NOTE adjust the filenames accordingly, these are for Colab
+    df_coinbase = load_data("/content/drive/MyDrive/datasets/coinbase.csv")
+    df_bitstamp = load_data("/content/drive/MyDrive/datasets/bitstamp.csv")
 
     # Extract the column names
     columns = df_coinbase.columns.tolist()
 
-    # Remove the first half of the data (to avoid early NaN-heavy data)
+    # Remove the first half of the data (to avoid the early NaN-heavy data)
     df_coinbase = remove_first_half(df_coinbase)
     df_bitstamp = remove_first_half(df_bitstamp)
 
     # Merge the datasets
     merged_df = merge_datasets(df_coinbase, df_bitstamp, columns)
 
-    # Subsample the data
-    # Take one data point every 10 minutes
+    # Subsample the data: take one data point every 60 minutes
     merged_df = subsample_data(merged_df, freq=60)
-
-    # Rescale the data
-    merged_df = rescale_data(merged_df)
 
     # Create time series data
     X, y = create_time_series_data(merged_df)
