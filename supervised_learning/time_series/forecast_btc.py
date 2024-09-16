@@ -4,7 +4,9 @@ Training a RNN to predict BTC price using the data of a 24h day
 """
 import numpy as np
 from keras import Sequential
-from keras.layers import Input, LSTM, Dense
+from keras.layers import Input, LSTM, Dense, Dropout
+from keras.callbacks import EarlyStopping
+from keras.optimizers import Adam
 from sklearn.preprocessing import MinMaxScaler
 import matplotlib.pyplot as plt
 
@@ -28,7 +30,8 @@ def rescale_data(X, y):
     """
     # Rescale X (input features)
     scaler_X = MinMaxScaler()
-    X_scaled = scaler_X.fit_transform(X.reshape(-1, X.shape[-1])).reshape(X.shape)
+    X_scaled = scaler_X.fit_transform(
+        X.reshape(-1, X.shape[-1])).reshape(X.shape)
 
     # Rescale y (target)
     scaler_y = MinMaxScaler()
@@ -57,13 +60,14 @@ def build_model(input_shape):
     """
     model = Sequential([
         Input(shape=input_shape),
-        LSTM(64, return_sequences=True),
-        LSTM(32),
-        Dense(16, activation='relu'),
+        LSTM(72, return_sequences=True),
+        LSTM(48),
+        Dense(24, activation='relu'),
         Dense(1)
     ])
 
-    model.compile(optimizer='adam', loss='mse', metrics=['mae'])
+    model.compile(optimizer=Adam(),
+                  loss='mse', metrics=['mae'])
     return model
 
 
@@ -86,9 +90,15 @@ def main():
     # Build and compile the model
     model = build_model(input_shape)
 
+    early_stopping_callback = EarlyStopping(monitor="val_mae",
+                                            patience=5,
+                                            verbose=1,
+                                            restore_best_weights=True)
+
     # Train the model
     model.fit(X_train, y_train, validation_data=(
-        X_val, y_val), epochs=5, batch_size=32)
+        X_val, y_val), epochs=20, batch_size=60,
+        callbacks=[early_stopping_callback])
 
     # Evaluate on test data
     loss, mae = model.evaluate(X_test, y_test)
@@ -107,10 +117,15 @@ def main():
     y_pred_rescaled = scaler_y.inverse_transform(y_pred)
     y_test_rescaled = scaler_y.inverse_transform(y_test.reshape(-1, 1))
 
+    # Shift the predictions by 60 time steps to align with actual close prices
+    y_pred_rescaled_aligned = y_pred_rescaled[60:]
+    # Exclude the last 60 actual close price values (no predictions for these)
+    y_test_rescaled_aligned = y_test_rescaled[:-60]
+
     # Plot the results
     plt.figure(figsize=(10, 6))
-    plt.plot(y_test_rescaled, label="Actual Close Prices")
-    plt.plot(y_pred_rescaled, label="Predicted Close Prices")
+    plt.plot(y_test_rescaled_aligned, label="Actual Close Prices")
+    plt.plot(y_pred_rescaled_aligned, label="Predicted Close Prices")
     plt.title("BTC Price Prediction vs Actual")
     plt.xlabel("Time")
     plt.ylabel("Price (USD)")
