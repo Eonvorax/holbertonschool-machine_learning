@@ -70,7 +70,8 @@ def bag_of_words(sentences, vocab=None):
     word_to_index = {word: i for i, word in enumerate(vocab)}
 
     # Initialize an embedding matrix of zeros with shape (s, f)
-    embeddings = np.zeros((len(sentences), len(vocab)))
+    embeddings = np.zeros((len(sentences), len(vocab)), dtype=int)
+    features = np.array(vocab)
 
     # Fill the embedding matrix
     for i, sentence in enumerate(processed_sentences):
@@ -78,4 +79,4 @@ def bag_of_words(sentences, vocab=None):
             if word in word_to_index:
                 embeddings[i, word_to_index[word]] += 1
 
-    return embeddings, vocab
+    return embeddings, features
