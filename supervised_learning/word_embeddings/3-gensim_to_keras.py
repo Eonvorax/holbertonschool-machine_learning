@@ -2,7 +2,7 @@
 """
 Extract & convert Word2Vec model to a keras layer
 """
-from keras.layers import Embedding
+import tensorflow as tf
 
 
 def gensim_to_keras(model):
@@ -18,7 +18,7 @@ def gensim_to_keras(model):
     keyed_vectors = model.wv  # structure holding the result of training
     weights = keyed_vectors.vectors  # vectors themselves, a 2D numpy array
 
-    layer = Embedding(
+    layer = tf.keras.layers.Embedding(
         input_dim=weights.shape[0],
         output_dim=weights.shape[1],
         weights=[weights],
