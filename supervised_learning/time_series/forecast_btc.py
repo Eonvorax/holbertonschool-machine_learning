@@ -92,13 +92,13 @@ def main():
     model = build_model(input_shape)
 
     early_stopping_callback = EarlyStopping(monitor="val_mae",
-                                            patience=3,
+                                            patience=5,
                                             verbose=1,
                                             restore_best_weights=True)
 
     # Train the model
     model.fit(X_train, y_train, validation_data=(
-        X_val, y_val), epochs=10, batch_size=128,
+        X_val, y_val), epochs=20, batch_size=32,
         callbacks=[early_stopping_callback])
 
     # Evaluate on test data
@@ -115,20 +115,15 @@ def main():
     y_pred = model.predict(X_test)
 
     # Scale the predictions and actual values back to the original scale
-    y_pred_rescaled = scaler_y.inverse_transform(y_pred)
     y_test_rescaled = scaler_y.inverse_transform(y_test.reshape(-1, 1))
-
-    # Shift the predictions by 60 time steps to align with actual close prices
-    y_pred_rescaled_aligned = y_pred_rescaled[60:]
-    # Exclude the last 60 actual close price values (no predictions for these)
-    y_test_rescaled_aligned = y_test_rescaled[:-60]
+    y_pred_rescaled = scaler_y.inverse_transform(y_pred)
 
     # Plot the results
     plt.figure(figsize=(10, 6))
-    plt.plot(y_test_rescaled_aligned, label="Actual Close Prices")
-    plt.plot(y_pred_rescaled_aligned, label="Predicted Close Prices")
+    plt.plot(y_test_rescaled, label="Actual Close Prices")
+    plt.plot(y_pred_rescaled, label="Predicted Close Prices")
     plt.title("BTC Price Prediction vs Actual")
-    plt.xlabel("Time")
+    plt.xlabel("Time (hours)")
     plt.ylabel("Price (USD)")
     plt.legend()
     plt.savefig("btc_price_prediction.png")

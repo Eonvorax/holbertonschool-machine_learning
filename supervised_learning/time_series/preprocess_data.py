@@ -40,9 +40,9 @@ def create_time_series_data(df, target_column='Close', past_window=1440, future_
     target = df[target_column].values  # Target variable (e.g., 'Close')
 
     X, y = [], []
-    for i in range(len(data) - past_window - future_window + 1):
+    for i in range(0, len(data) - past_window, future_window):
         X.append(data[i:i + past_window])
-        y.append(target[i + past_window + future_window - 1])
+        y.append(target[i + past_window])
 
     return np.array(X, dtype="float32"), np.array(y, dtype="float32")
 
@@ -65,22 +65,20 @@ def subsample_data(df, freq=10):
 
 
 def main():
-    # Load the datasets NOTE adjust the filenames accordingly, these are for Colab
+    # Load the datasets
+    # NOTE adjust the filenames accordingly, these are for Colab
     df_coinbase = load_data("/content/drive/MyDrive/datasets/coinbase.csv")
     df_bitstamp = load_data("/content/drive/MyDrive/datasets/bitstamp.csv")
 
     # Extract the column names
     columns = df_coinbase.columns.tolist()
 
-    # Remove the first half of the data (to avoid the early NaN-heavy data)
+    # Remove the first half of the data (to avoid early NaN-heavy data)
     df_coinbase = remove_first_half(df_coinbase)
     df_bitstamp = remove_first_half(df_bitstamp)
 
     # Merge the datasets
     merged_df = merge_datasets(df_coinbase, df_bitstamp, columns)
-
-    # Subsample the data: take one data point every 60 minutes
-    merged_df = subsample_data(merged_df, freq=60)
 
     # Create time series data
     X, y = create_time_series_data(merged_df)
