@@ -21,7 +21,7 @@ def uni_bleu(references, sentence):
 
     # Calculate maximum matches for each word in the sentence
     matches = 0
-    for word in sentence:
+    for word in set(sentence):
         max_count = max(ref.count(word) for ref in references)
         matches += min(sentence.count(word), max_count)
 
