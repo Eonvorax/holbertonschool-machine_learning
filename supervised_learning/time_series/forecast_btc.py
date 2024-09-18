@@ -60,9 +60,10 @@ def build_model(input_shape):
     """
     model = Sequential([
         Input(shape=input_shape),
-        LSTM(72, return_sequences=True),
-        LSTM(48),
-        Dense(24, activation='relu'),
+        LSTM(60, return_sequences=True),
+        LSTM(60),
+        Dense(30, activation='relu'),
+        Dropout(0.2),
         Dense(1)
     ])
 
@@ -91,13 +92,13 @@ def main():
     model = build_model(input_shape)
 
     early_stopping_callback = EarlyStopping(monitor="val_mae",
-                                            patience=5,
+                                            patience=3,
                                             verbose=1,
                                             restore_best_weights=True)
 
     # Train the model
     model.fit(X_train, y_train, validation_data=(
-        X_val, y_val), epochs=20, batch_size=60,
+        X_val, y_val), epochs=10, batch_size=128,
         callbacks=[early_stopping_callback])
 
     # Evaluate on test data
