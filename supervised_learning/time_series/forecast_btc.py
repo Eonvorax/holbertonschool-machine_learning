@@ -9,6 +9,7 @@ from keras.callbacks import EarlyStopping
 from keras.optimizers import Adam
 from sklearn.preprocessing import MinMaxScaler
 import matplotlib.pyplot as plt
+import tensorflow as tf
 
 
 def load_data(npz_file):
@@ -60,16 +61,25 @@ def build_model(input_shape):
     """
     model = Sequential([
         Input(shape=input_shape),
-        LSTM(60, return_sequences=True),
-        LSTM(60),
-        Dense(30, activation='relu'),
-        Dropout(0.2),
+        LSTM(60, kernel_regularizer='L2', return_sequences=True),
+        LSTM(60, kernel_regularizer='L2'),  # NOTE L2 is only decent with low values, like 1e-6
         Dense(1)
     ])
 
-    model.compile(optimizer=Adam(),
-                  loss='mse', metrics=['mae'])
+    model.compile(optimizer=Adam(), loss='mse', metrics=['mae'])
     return model
+
+
+def create_tf_dataset(X, y, batch_size=32, shuffle=True):
+    """
+    Convert NumPy arrays into a TensorFlow dataset and batch it.
+    If shuffle is True, shuffle the dataset before batching.
+    """
+    dataset = tf.data.Dataset.from_tensor_slices((X, y))
+    if shuffle:
+        dataset = dataset.shuffle(buffer_size=len(X))
+    dataset = dataset.batch(batch_size).prefetch(tf.data.AUTOTUNE)
+    return dataset
 
 
 def main():
@@ -85,6 +95,11 @@ def main():
     X_train, y_train, X_val, y_val, X_test, y_test = split_data(
         X_scaled, y_scaled)
 
+    # Create tf.data.Dataset objects
+    train_dataset = create_tf_dataset(X_train, y_train, batch_size=32, shuffle=True)
+    val_dataset = create_tf_dataset(X_val, y_val, batch_size=32, shuffle=False)
+    test_dataset = create_tf_dataset(X_test, y_test, batch_size=32, shuffle=False)
+
     # Determine input shape based on X_train
     input_shape = (X_train.shape[1], X_train.shape[2])  # (timesteps, features)
 
@@ -92,14 +107,14 @@ def main():
     model = build_model(input_shape)
 
     early_stopping_callback = EarlyStopping(monitor="val_mae",
-                                            patience=5,
+                                            patience=3,
+                                            start_from_epoch=3,
                                             verbose=1,
                                             restore_best_weights=True)
 
-    # Train the model
-    model.fit(X_train, y_train, validation_data=(
-        X_val, y_val), epochs=20, batch_size=32,
-        callbacks=[early_stopping_callback])
+    # Train the model using the Dataset API
+    model.fit(train_dataset, validation_data=val_dataset, epochs=10,
+              callbacks=[early_stopping_callback])
 
     # Evaluate on test data
     loss, mae = model.evaluate(X_test, y_test)
@@ -115,7 +130,8 @@ def main():
     y_pred = model.predict(X_test)
 
     # Scale the predictions and actual values back to the original scale
-    y_test_rescaled = scaler_y.inverse_transform(y_test.reshape(-1, 1))
+    # NOTE why not take y_test ? Note sure this is needed
+    y_test_rescaled = scaler_y.inverse_transform(np.concatenate([y for x, y in test_dataset], axis=0))
     y_pred_rescaled = scaler_y.inverse_transform(y_pred)
 
     # Plot the results
