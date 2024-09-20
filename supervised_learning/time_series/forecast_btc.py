@@ -7,6 +7,7 @@ from keras import Sequential
 from keras.layers import Input, LSTM, Dense, Dropout
 from keras.callbacks import EarlyStopping
 from keras.optimizers import Adam
+from keras.regularizers import L1L2
 from sklearn.preprocessing import MinMaxScaler
 import matplotlib.pyplot as plt
 import tensorflow as tf
@@ -61,8 +62,7 @@ def build_model(input_shape):
     """
     model = Sequential([
         Input(shape=input_shape),
-        LSTM(60, kernel_regularizer='L2', return_sequences=True),
-        LSTM(60, kernel_regularizer='L2'),  # NOTE L2 is only decent with low values, like 1e-6
+        LSTM(60, kernel_regularizer=L1L2(1e-6, 1e-6), bias_regularizer=L1L2(1e-6, 1e-6)),
         Dense(1)
     ])
 
@@ -84,6 +84,7 @@ def create_tf_dataset(X, y, batch_size=32, shuffle=True):
 
 def main():
     npz_file = "preprocessed_data_raw.npz"  # NOTE Adjust the file path accordingly
+    batch_size = 64
 
     # Load the preprocessed time series data
     X, y = load_data(npz_file)
@@ -96,9 +97,9 @@ def main():
         X_scaled, y_scaled)
 
     # Create tf.data.Dataset objects
-    train_dataset = create_tf_dataset(X_train, y_train, batch_size=32, shuffle=True)
-    val_dataset = create_tf_dataset(X_val, y_val, batch_size=32, shuffle=False)
-    test_dataset = create_tf_dataset(X_test, y_test, batch_size=32, shuffle=False)
+    train_dataset = create_tf_dataset(X_train, y_train, batch_size=batch_size, shuffle=True)
+    val_dataset = create_tf_dataset(X_val, y_val, batch_size=batch_size, shuffle=False)
+    test_dataset = create_tf_dataset(X_test, y_test, batch_size=batch_size, shuffle=False)
 
     # Determine input shape based on X_train
     input_shape = (X_train.shape[1], X_train.shape[2])  # (timesteps, features)
