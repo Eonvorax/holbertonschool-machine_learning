@@ -32,7 +32,8 @@ def merge_datasets(df1: pd.DataFrame, df2: pd.DataFrame, columns):
     return merged_df
 
 
-def create_time_series_data(df, target_column='Close', past_window=1440, future_window=60):
+def create_time_series_data(df, target_column='Close', past_window=1440,
+                            future_window=60):
     """
     Create input-output sequences for time series prediction.
     """
@@ -40,9 +41,9 @@ def create_time_series_data(df, target_column='Close', past_window=1440, future_
     target = df[target_column].values  # Target variable (e.g., 'Close')
 
     X, y = [], []
-    for i in range(0, len(data) - past_window, future_window):
+    for i in range(0, len(data) - past_window - future_window, future_window):
         X.append(data[i:i + past_window])
-        y.append(target[i + past_window])
+        y.append(target[i + past_window + future_window])
 
     return np.array(X, dtype="float32"), np.array(y, dtype="float32")
 
@@ -66,7 +67,7 @@ def subsample_data(df, freq=10):
 
 def main():
     # Load the datasets
-    # NOTE adjust the filenames accordingly, these are for Colab
+    # NOTE adjust the file paths accordingly, these are for Colab
     df_coinbase = load_data("/content/drive/MyDrive/datasets/coinbase.csv")
     df_bitstamp = load_data("/content/drive/MyDrive/datasets/bitstamp.csv")
 
