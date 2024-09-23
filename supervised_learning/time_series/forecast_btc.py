@@ -62,7 +62,8 @@ def build_model(input_shape):
     """
     model = Sequential([
         Input(shape=input_shape),
-        LSTM(60, kernel_regularizer=L1L2(1e-6, 1e-6), bias_regularizer=L1L2(1e-6, 1e-6)),
+        LSTM(60, kernel_regularizer=L1L2(1e-6, 1e-6),
+             bias_regularizer=L1L2(1e-6, 1e-6)),
         Dense(1)
     ])
 
@@ -83,8 +84,9 @@ def create_tf_dataset(X, y, batch_size=32, shuffle=True):
 
 
 def main():
-    npz_file = "preprocessed_data_raw.npz"  # NOTE Adjust the file path accordingly
-    batch_size = 64
+    # NOTE Adjust the file path accordingly
+    npz_file = "preprocessed_data_raw.npz"
+    batch_size = 32
 
     # Load the preprocessed time series data
     X, y = load_data(npz_file)
@@ -97,9 +99,12 @@ def main():
         X_scaled, y_scaled)
 
     # Create tf.data.Dataset objects
-    train_dataset = create_tf_dataset(X_train, y_train, batch_size=batch_size, shuffle=True)
-    val_dataset = create_tf_dataset(X_val, y_val, batch_size=batch_size, shuffle=False)
-    test_dataset = create_tf_dataset(X_test, y_test, batch_size=batch_size, shuffle=False)
+    train_dataset = create_tf_dataset(X_train, y_train,
+                                      batch_size=batch_size, shuffle=True)
+    val_dataset = create_tf_dataset(X_val, y_val,
+                                    batch_size=batch_size, shuffle=False)
+    test_dataset = create_tf_dataset(X_test, y_test,
+                                     batch_size=batch_size, shuffle=False)
 
     # Determine input shape based on X_train
     input_shape = (X_train.shape[1], X_train.shape[2])  # (timesteps, features)
@@ -108,12 +113,11 @@ def main():
     model = build_model(input_shape)
 
     early_stopping_callback = EarlyStopping(monitor="val_mae",
-                                            patience=3,
-                                            start_from_epoch=3,
+                                            patience=5,
                                             verbose=1,
                                             restore_best_weights=True)
 
-    # Train the model using the Dataset API
+    # Train the model using the Datasets
     model.fit(train_dataset, validation_data=val_dataset, epochs=10,
               callbacks=[early_stopping_callback])
 
@@ -132,7 +136,8 @@ def main():
 
     # Scale the predictions and actual values back to the original scale
     # NOTE why not take y_test ? Note sure this is needed
-    y_test_rescaled = scaler_y.inverse_transform(np.concatenate([y for x, y in test_dataset], axis=0))
+    y_test_rescaled = scaler_y.inverse_transform(
+        np.concatenate([y for x, y in test_dataset], axis=0))
     y_pred_rescaled = scaler_y.inverse_transform(y_pred)
 
     # Plot the results
