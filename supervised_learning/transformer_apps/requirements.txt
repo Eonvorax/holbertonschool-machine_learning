@@ -1,0 +1,4 @@
+tensorflow == 2.15
+numpy == 1.25.2
+tensorflow-datasets == 4.9.2
+transformers == 4.44.2
