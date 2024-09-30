@@ -26,7 +26,7 @@ class Dataset:
                                     split='validation', as_supervised=True)
 
         # Initialize tokenizers
-        self.tokenizer_en, self.tokenizer_pt = self.tokenize_dataset(
+        self.tokenizer_pt, self.tokenizer_en = self.tokenize_dataset(
             self.data_train)
 
     def tokenize_dataset(self, data):
