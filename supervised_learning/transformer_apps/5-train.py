@@ -36,28 +36,28 @@ def train_transformer(N, dm, h, hidden, max_len, batch_size, epochs):
                         drop_rate=0.1)
 
     learning_rate = CustomSchedule(dm, warmup_steps=4000)
-    optimizer = K.optimizers.Adam(beta_1=0.9,
+    optimizer = K.optimizers.Adam(learning_rate=learning_rate,
+                                  beta_1=0.9,
                                   beta_2=0.98,
                                   epsilon=1e-9)
     loss_object = K.losses.SparseCategoricalCrossentropy(from_logits=True) # NOTE Ignore mask ?
-
-    # model.compile(optimizer=optimizer,
-    #               loss=loss_object,
-    #               run_eagerly=True,  # NOTE Remains to be seen
-    #               metrics=['loss', 'accuracy'])
 
     # Define metrics
     train_loss = K.metrics.Mean(name='train_loss')
     train_accuracy = K.metrics.SparseCategoricalAccuracy(name='train_accuracy')
 
     # Training step function
-    @tf.function
+    # @tf.function(reduce_retracing=True) NOTE Causes issues on local PC
     def train_step(inp, tar):
-
         enc_mask, combined_mask, dec_mask = create_masks(inp, tar)
 
         with tf.GradientTape() as tape:
-            predictions, _ = model(inp, tar, True, enc_mask, combined_mask, dec_mask)
+            predictions = model(inputs=inp,
+                                   target=tar,
+                                   training=True,
+                                   encoder_mask=enc_mask,
+                                   look_ahead_mask=combined_mask,
+                                   decoder_mask=dec_mask)
             loss = loss_object(tar, predictions)
 
         gradients = tape.gradient(loss, model.trainable_variables)

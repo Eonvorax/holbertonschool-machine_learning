@@ -68,7 +68,7 @@ def sdp_attention(Q, K, V, mask=None):
     scaled_scores = scores / tf.sqrt(dk)
 
     # If given a mask, apply it to the scores
-    if mask:
+    if mask is not None:
         # Masked positions basically get set to a large "-inf" negative value
         scaled_scores += (mask * -1e-9)
 
