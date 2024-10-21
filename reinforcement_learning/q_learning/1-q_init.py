@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Initialize Q-table fo
+Initialize Q-table
 """
 
 import numpy as np
