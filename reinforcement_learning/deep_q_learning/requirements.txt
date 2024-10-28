@@ -1,0 +1,8 @@
+keras==2.15.0
+keras-rl2==1.0.4
+gymnasium[atari]==0.29.1
+tensorflow==2.15.0
+numpy==1.25.2
+Pillow==10.3.0
+h5py==3.11.0
+autorom[accept-rom-license]
