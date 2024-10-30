@@ -6,3 +6,4 @@ numpy==1.25.2
 Pillow==10.3.0
 h5py==3.11.0
 autorom[accept-rom-license]
+gymnasium[other]
