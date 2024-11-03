@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Training script
+Testing script
 """
 
 
@@ -13,7 +13,7 @@ import numpy as np
 
 from rl.processors import Processor
 from rl.agents.dqn import DQNAgent
-from rl.policy import EpsGreedyQPolicy, LinearAnnealedPolicy
+from rl.policy import GreedyQPolicy
 from rl.memory import SequentialMemory
 
 from keras.models import Sequential
@@ -23,11 +23,11 @@ import gymnasium as gym
 import matplotlib.pyplot as plt
 
 
-
 class AtariProcessor(Processor):
     """Preprocessing Images"""
 
     def process_observation(self, observation):
+        """Preprocess observation"""
         if isinstance(observation, tuple):
             observation = observation[0]
         # Ensure it's a NumPy array
@@ -82,6 +82,10 @@ class CompatibilityWrapper(gym.Wrapper):
 
         return observation
 
+    def render(self, *args, **kwargs):
+        # Call the environment's render method without any arguments
+        return self.env.render()  # Removes 'mode' argument
+
 
 def build_model(input_shape, actions):
     """
@@ -101,19 +105,10 @@ def build_agent(model, actions):
     """
     """
     memory = SequentialMemory(limit=100000, window_length=4)
-    policy = LinearAnnealedPolicy(
-        EpsGreedyQPolicy(),
-        attr='eps',
-        value_max=1.,
-        value_min=.1,
-        value_test=.05,
-        nb_steps=4000
-    )
+    policy = GreedyQPolicy()
     dqn = DQNAgent(model=model,
                    nb_actions=actions,
                    memory=memory,
-                   nb_steps_warmup=50000,
-                   target_model_update=1e-2,
                    processor=AtariProcessor(),
                    gamma=.99,
                    policy=policy,
@@ -125,7 +120,7 @@ def build_agent(model, actions):
 def main():
     """
     """
-    env = gym.make("ALE/Breakout-v5")
+    env = gym.make("ALE/Breakout-v5", render_mode="rgb_array")
     env = CompatibilityWrapper(env)
     observation = env.reset()
 
@@ -137,14 +132,10 @@ def main():
 
     actions = env.action_space.n
     model = build_model(observation.shape, actions)
+    model.load_weights('policy.h5')
     dqn = build_agent(model, actions)
 
-    dqn.fit(env,
-            nb_steps=100000,
-            visualize=False,
-            verbose=2)
-    dqn.save_weights('policy.h5', overwrite=True)
-
+    dqn.test(env, nb_episodes=2, visualize=True)
     env.close()
 
 
