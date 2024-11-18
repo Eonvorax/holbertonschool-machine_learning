@@ -2,10 +2,9 @@
 """
 Rename column and convert timestamp values
 """
-import pandas as pd
 
 
-def array(df: pd.DataFrame):
+def array(df):
     """
     Extracts the last 10 rows of the 'High' and 'Close' columns from a
     DataFrame and converts them into a numpy.ndarray.
