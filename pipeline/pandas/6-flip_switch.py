@@ -2,10 +2,9 @@
 """
 Reverse sort and transpose a DataFrame
 """
-import pandas as pd
 
 
-def flip_switch(df: pd.DataFrame):
+def flip_switch(df):
     """
     Sorts a DataFrame in reverse chronological order and transposes it.
 
