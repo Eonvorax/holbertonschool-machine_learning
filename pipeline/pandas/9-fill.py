@@ -2,10 +2,9 @@
 """
 Fill missing values
 """
-import pandas as pd
 
 
-def fill(df: pd.DataFrame):
+def fill(df):
     """
     Cleans and fills missing values in the DataFrame :
     - Fills missing values in the Close column with the previous row's value.
